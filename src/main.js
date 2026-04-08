@@ -1,3 +1,5 @@
+import './index.css';
+
 // Mock Data
 const PRODUCTS = [
   {
@@ -91,7 +93,12 @@ const TESTIMONIALS = [
 ];
 
 // State
-let cart = JSON.parse(localStorage.getItem('lumina_cart')) || [];
+let cart = [];
+try {
+  cart = JSON.parse(localStorage.getItem('lumina_cart')) || [];
+} catch (e) {
+  console.warn('localStorage is not available:', e);
+}
 let selectedCategory = "Todos";
 let sortOrder = "featured";
 let maxPrice = 200;
@@ -347,7 +354,11 @@ function renderCart() {
   }
 
   if (window.lucide) lucide.createIcons();
-  localStorage.setItem('lumina_cart', JSON.stringify(cart));
+  try {
+    localStorage.setItem('lumina_cart', JSON.stringify(cart));
+  } catch (e) {
+    console.warn('localStorage is not available:', e);
+  }
 }
 
 // Actions
