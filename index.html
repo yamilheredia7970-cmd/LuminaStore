@@ -1,13 +1,327 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>LUMINA - E-commerce</title>
+    <link rel="stylesheet" href="/src/index.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="bg-white font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+    
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent py-6">
+      <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+        <div class="flex items-center gap-12">
+          <a href="#" class="text-2xl font-bold tracking-tighter text-slate-900">LUMINA</a>
+          <div class="hidden md:flex items-center gap-8">
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Inicio</a>
+            <a href="#tienda" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Tienda</a>
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Categorías</a>
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Ofertas</a>
+            <a href="#" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Contacto</a>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-5">
+          <button class="p-2 text-slate-600 hover:text-slate-900 transition-colors"><i data-lucide="search" class="w-5 h-5"></i></button>
+          
+          <!-- User Dropdown -->
+          <div class="relative" id="user-menu-container">
+            <button id="user-btn" class="p-2 text-slate-600 hover:text-slate-900 transition-colors">
+              <i data-lucide="user" class="w-5 h-5"></i>
+            </button>
+            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 opacity-0 pointer-events-none transition-all duration-200 transform translate-y-2 z-50">
+              <div class="p-2">
+                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors font-medium">Iniciar sesión</a>
+                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors font-medium">Crear cuenta</a>
+                <div class="h-px bg-slate-100 my-1"></div>
+                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors font-medium">Mis pedidos</a>
+              </div>
+            </div>
+          </div>
+
+          <button id="cart-btn" class="p-2 text-slate-600 hover:text-slate-900 transition-colors relative">
+            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+            <span id="cart-badge" class="hidden absolute top-1 right-1 w-4 h-4 bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center rounded-full">0</span>
+          </button>
+          <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-600">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="absolute top-full left-0 right-0 bg-white border-t border-slate-100 p-6 md:hidden flex-col gap-4 shadow-xl opacity-0 pointer-events-none transition-all duration-300 transform -translate-y-4">
+        <a href="#" class="text-lg font-medium text-slate-900 py-2 border-b border-slate-50">Inicio</a>
+        <a href="#tienda" class="text-lg font-medium text-slate-900 py-2 border-b border-slate-50">Tienda</a>
+        <a href="#" class="text-lg font-medium text-slate-900 py-2 border-b border-slate-50">Categorías</a>
+        <a href="#" class="text-lg font-medium text-slate-900 py-2 border-b border-slate-50">Ofertas</a>
+        <a href="#" class="text-lg font-medium text-slate-900 py-2 border-b border-slate-50">Contacto</a>
+      </div>
+    </nav>
+
+    <!-- Cart Drawer -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[70] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-900">Tu Carrito</h2>
+        <button id="close-cart-btn" class="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <div id="cart-items-container" class="flex-1 overflow-y-auto p-6">
+        <!-- Cart items injected here -->
+      </div>
+      <div id="cart-footer" class="hidden p-6 border-t border-slate-100 bg-slate-50/50">
+        <div class="flex justify-between items-center mb-6">
+          <span class="text-slate-500 font-medium">Total estimado</span>
+          <span id="cart-total" class="text-2xl font-bold text-slate-900">$0</span>
+        </div>
+        <button class="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20">
+          Finalizar Compra
+        </button>
+        <p class="text-center text-xs text-slate-400 mt-4">
+          Impuestos y envío calculados al finalizar la compra.
+        </p>
+      </div>
+    </div>
+
+    <main>
+      <!-- Hero -->
+      <section class="relative h-screen flex items-center pt-20 overflow-hidden bg-[#F8F9FA]">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold tracking-widest uppercase rounded-full mb-6">Nueva Colección 2026</span>
+            <h1 class="text-6xl md:text-7xl font-bold text-slate-900 leading-[1.1] mb-6 tracking-tight">
+              Diseño que <br /> <span class="text-blue-600">inspira</span> tu día.
+            </h1>
+            <p class="text-lg text-slate-600 mb-10 max-w-md leading-relaxed">
+              Descubre nuestra selección curada de tecnología y accesorios minimalistas diseñados para elevar tu estilo de vida digital.
+            </p>
+            <div class="flex flex-wrap gap-4">
+              <a href="#tienda" class="px-8 py-4 bg-slate-900 text-white font-semibold rounded-full hover:bg-slate-800 transition-all transform hover:scale-105 flex items-center gap-2">
+                Comprar ahora <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </a>
+              <button class="px-8 py-4 bg-white text-slate-900 border border-slate-200 font-semibold rounded-full hover:bg-slate-50 transition-all">
+                Ver catálogo
+              </button>
+            </div>
+          </div>
+          <div class="relative">
+            <div class="relative z-10 rounded-3xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-700">
+              <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop" alt="Featured Product" class="w-full h-auto object-cover" referrerpolicy="no-referrer" />
+            </div>
+            <div class="absolute -top-10 -right-10 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-50 -z-10"></div>
+            <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-amber-100 rounded-full blur-3xl opacity-50 -z-10"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trust Section -->
+      <section class="py-16 bg-slate-50 border-y border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-2 text-blue-600"><i data-lucide="truck"></i></div>
+            <h4 class="font-bold text-slate-900">Envío Rápido</h4>
+            <p class="text-sm text-slate-500">En 24/48 horas</p>
+          </div>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-2 text-blue-600"><i data-lucide="shield-check"></i></div>
+            <h4 class="font-bold text-slate-900">Garantía Total</h4>
+            <p class="text-sm text-slate-500">2 años de cobertura</p>
+          </div>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-2 text-blue-600"><i data-lucide="credit-card"></i></div>
+            <h4 class="font-bold text-slate-900">Pago Seguro</h4>
+            <p class="text-sm text-slate-500">100% encriptado</p>
+          </div>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-2 text-blue-600"><i data-lucide="headphones"></i></div>
+            <h4 class="font-bold text-slate-900">Soporte 24/7</h4>
+            <p class="text-sm text-slate-500">Siempre contigo</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Store Section -->
+      <section class="py-24 bg-white" id="tienda">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight text-balance">Nuestra Colección</h2>
+            <p class="text-slate-500 max-w-2xl mx-auto text-balance">
+              Diseño minimalista con tecnología de vanguardia. Filtrado dinámico para encontrar tu pieza perfecta.
+            </p>
+          </div>
+
+          <div class="flex flex-col lg:flex-row gap-12">
+            <!-- Desktop Sidebar -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+              <div class="sticky top-32">
+                <h2 class="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
+                  Filtros <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                </h2>
+                <div id="desktop-filters"></div>
+              </div>
+            </aside>
+
+            <div class="flex-1">
+              <!-- Filter and Sort Bar -->
+              <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 pb-8 border-b border-slate-100">
+                <div class="flex flex-wrap justify-center gap-2" id="category-pills">
+                  <!-- Categories injected here -->
+                </div>
+
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                  <button id="mobile-filter-btn" class="lg:hidden flex-1 flex items-center justify-center gap-2 px-6 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-900">
+                    Filtros
+                  </button>
+                  <div class="flex items-center gap-3 flex-1 md:flex-none">
+                    <select id="sort-select" class="w-full bg-white border border-slate-200 text-slate-900 text-sm font-semibold rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600/20 cursor-pointer">
+                      <option value="featured">Destacados</option>
+                      <option value="best-sellers">Más vendidos</option>
+                      <option value="low-to-high">Precio: Bajo a Alto</option>
+                      <option value="high-to-low">Precio: Alto a Bajo</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div id="products-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                <!-- Products injected here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mobile Filter Drawer -->
+      <div id="mobile-filter-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80] opacity-0 pointer-events-none transition-opacity duration-300"></div>
+      <div id="mobile-filter-drawer" class="fixed bottom-0 left-0 right-0 bg-white z-[90] rounded-t-[2.5rem] p-8 shadow-2xl max-h-[80vh] overflow-y-auto transform translate-y-full transition-transform duration-300">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-2xl font-bold text-slate-900">Filtros</h2>
+          <button id="close-mobile-filter-btn" class="p-2 text-slate-400 hover:text-slate-900">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+        </div>
+        <div id="mobile-filters"></div>
+        <button id="apply-filters-btn" class="w-full mt-10 py-4 bg-slate-900 text-white font-bold rounded-2xl">
+          Aplicar Filtros
+        </button>
+      </div>
+
+      <!-- Categories -->
+      <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="flex justify-between items-end mb-12">
+            <div>
+              <h2 class="text-3xl font-bold text-slate-900 mb-4 tracking-tight">Explora Categorías</h2>
+              <p class="text-slate-500">Encuentra exactamente lo que necesitas para tu espacio.</p>
+            </div>
+            <a href="#" class="text-blue-600 font-bold flex items-center gap-1 hover:gap-2 transition-all">
+              Ver todas <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </a>
+          </div>
+          <div class="grid md:grid-cols-3 gap-8" id="categories-grid">
+            <!-- Categories injected here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Product -->
+      <section class="py-24 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+          <div class="bg-slate-900 rounded-[3rem] overflow-hidden flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 h-96 md:h-[600px]">
+              <img src="https://images.unsplash.com/photo-1525547718571-a71440c93ae8?q=80&w=1200&auto=format&fit=crop" alt="Featured Tech" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
+            </div>
+            <div class="w-full md:w-1/2 p-12 md:p-20">
+              <span class="text-blue-400 font-bold tracking-widest uppercase text-xs mb-6 block">Producto Estrella</span>
+              <h2 class="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight tracking-tight">
+                Lumina Pro Hub: <br /> Conecta tu mundo.
+              </h2>
+              <p class="text-slate-400 text-lg mb-10 leading-relaxed">
+                El centro de mando definitivo para tu setup. 12 puertos en un diseño de aluminio aeroespacial que redefine la productividad.
+              </p>
+              <button class="px-10 py-5 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-500 transition-all flex items-center gap-3">
+                Ver detalles <i data-lucide="arrow-right" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="py-24 bg-[#F8F9FA]">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+          <h2 class="text-3xl font-bold text-slate-900 mb-16 tracking-tight">Lo que dicen nuestros clientes</h2>
+          <div class="grid md:grid-cols-3 gap-8" id="testimonials-grid">
+            <!-- Testimonials injected here -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white pt-24 pb-12 border-t border-slate-100">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-12 mb-20">
+          <div class="col-span-1 md:col-span-1">
+            <a href="#" class="text-2xl font-bold tracking-tighter text-slate-900 mb-6 block">LUMINA</a>
+            <p class="text-slate-500 mb-8 leading-relaxed">
+              Elevando el estándar del diseño tecnológico minimalista desde 2024.
+            </p>
+            <div class="flex gap-4">
+              <a href="#" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:bg-blue-600 hover:text-white transition-all"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+              <a href="#" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:bg-blue-600 hover:text-white transition-all"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+              <a href="#" class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:bg-blue-600 hover:text-white transition-all"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+            </div>
+          </div>
+          
+          <div>
+            <h5 class="font-bold text-slate-900 mb-6">Tienda</h5>
+            <ul class="flex flex-col gap-4 text-slate-500 text-sm">
+              <li><a href="#tienda" class="hover:text-blue-600 transition-colors">Todos los productos</a></li>
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Novedades</a></li>
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Ofertas</a></li>
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Categorías</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h5 class="font-bold text-slate-900 mb-6">Soporte</h5>
+            <ul class="flex flex-col gap-4 text-slate-500 text-sm">
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Envíos y Devoluciones</a></li>
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Preguntas Frecuentes</a></li>
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Términos de Servicio</a></li>
+              <li><a href="#" class="hover:text-blue-600 transition-colors">Privacidad</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h5 class="font-bold text-slate-900 mb-6">Newsletter</h5>
+            <p class="text-slate-500 text-sm mb-6">Suscríbete para recibir ofertas exclusivas y novedades.</p>
+            <div class="flex gap-2">
+              <input type="email" placeholder="Tu email" class="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/20" />
+              <button class="px-4 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all">
+                Unirse
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pt-12 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p class="text-slate-400 text-sm">© 2026 LUMINA Store. Todos los derechos reservados.</p>
+          <div class="flex gap-6 text-slate-400 text-xs uppercase tracking-widest font-bold">
+            <a href="#" class="hover:text-slate-900 transition-colors">España</a>
+            <a href="#" class="hover:text-slate-900 transition-colors">Inglés</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
 
